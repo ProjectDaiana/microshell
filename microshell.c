@@ -2,12 +2,9 @@
 #include <string.h>
 #include <unistd.h>
 
-int errors(char *msg, char *str)
+int errors(char *msg)
 {
-
 	write(2, msg, strlen(msg));
-	write(2, str, strlen(str));
-	write(2, "\n", 1);
 	return 1;
 }
 
@@ -39,12 +36,19 @@ int main(int argc, char **argv, char **env)
 				// else is an argument
 				if (strcmp(argv[i], "cd") == 0)
 				{
+					if (argv[i + 1] == NULL)
+						errors("error: cd: bad arguments");
 					if(chdir(argv[i + 1]) == -1)
-						errors("error: cd: cannot change directory to ", argv[i + 1]);
+					{
+						errors("error: cd: cannot change directory to ");
+						errors(argv[i + 1]);
+						errors("\n");
+					}
+					//NEXT 5 LINES ONLY FOR DEBUGGING
 					char cwd[1024];
                     if (getcwd(cwd, sizeof(cwd)) != NULL)
                     {
-                        printf("Directory changed to: %s\n", cwd);
+                        printf("Current Directory: %s\n", cwd);
                     }									
 					// int e = 0;
 					// while (env[e])
@@ -55,7 +59,11 @@ int main(int argc, char **argv, char **env)
 				}
 				printf("executing: %s\n", argv[i]);
 				if(execve(argv[i], cmd, env) == -1)
-					errors("error: cannot execute ", argv[i]);
+				{
+					errors("error: cannot execute ");
+					errors(argv[i]);
+					errors("\n");
+				}
 				i++;
 			}
 	}

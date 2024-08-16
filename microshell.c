@@ -21,9 +21,10 @@ void print_cwd()
 int	exec_cd(char *arg, int i)
 {
 	print_cwd();
-	if (arg == NULL || i < 2)
+	if (arg == NULL || i != 2)
 	{
 		errors("error: cd: bad arguments");
+		errors("\n");
 		return(1);
 	}
 	if(chdir(arg) == -1)
@@ -39,22 +40,23 @@ int	exec_cd(char *arg, int i)
 
 int	exec_cmd(char **cmd, int i, char **env)
 {
-	int i;
-	i = 0;
-	if (strcmp(cmd, "cd") == 0)
+	if (strcmp(*cmd, "cd") == 0)
 	{
-		exec_cd(argv[i + 1], i);
+		exec_cd(cmd[1], i);
 		return (0);
 	}
 	else {
-		printf("EXECUTING: %s\n", argv[i]);
-		if(execve(argv[i], cmd, env) == -1)
+		printf("EXECUTING: %s\n", cmd[0]);
+		cmd[i] = NULL;
+		if(execve(*cmd, cmd, env) == -1)
 		{
 			errors("error: cannot execute ");
-			errors(argv[i]);
+			errors(*cmd);
 			errors("\n");
+			return (1);
 		}
 	}
+	return (0);
 }
 
 int main(int argc, char **argv, char **env)
@@ -65,22 +67,28 @@ int main(int argc, char **argv, char **env)
 	{
 		while(argv[i])
 		{
+			argv += i;
+			i = 0;
 			printf("argv[%d]: %s\n", i, argv[i]);
-			if (!strcmp(argv[i], ";"))
+			while (argv[i] && strcmp(argv[i], "|") != 0 && strcmp(argv[i], ";") != 0)
 			{
 				i++;
-				continue;
 			}
+			printf("i is :%d\n",i);
 			int pid = fork();
 			if (pid == -1)
 				errors("error: cannot fork\n");
 			if (pid == 0)
 			{
-				exec_cmd(argv[i], i, env);
+				exec_cmd(argv, i, env);
+				return (0);
 			}
 			waitpid(pid, NULL, 0);
-			i++;
-			printf("Continues w next command: %s\n", argv[i]);
+			if (argv[i] != NULL)
+				i++;
+			else
+				break;
+			printf("Continues w next command: %s i: %d\n", argv[i], i);
 		}
 	}
 	return (0);

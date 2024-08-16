@@ -75,6 +75,7 @@ int main(int argc, char **argv, char **env)
 				i++;
 			}
 			printf("i is :%d\n",i);
+			
 			int pid = fork();
 			if (pid == -1)
 				errors("error: cannot fork\n");
@@ -84,10 +85,10 @@ int main(int argc, char **argv, char **env)
 				return (0);
 			}
 			waitpid(pid, NULL, 0);
-			if (argv[i] != NULL)
-				i++;
-			else
+
+			if (argv[i] == NULL)
 				break;
+			i++;
 			printf("Continues w next command: %s i: %d\n", argv[i], i);
 		}
 	}
@@ -101,5 +102,5 @@ microshell
 i love my microshell
 $>
 
->./microshell
+>./microshell 
 */

@@ -1,0 +1,9 @@
+----------------8<-------------[ START TEST 
+        🔎 YOUR OUTPUT:
+microshell/microshell.c: In function ‘main’:
+microshell/microshell.c:54:10: error: parameter name omitted
+   54 | int main(int, char **argv, char **envp)
+      |          ^~~
+
+        ❌ COMPILATION ERROR
+----------------8<------------- END TEST ]
